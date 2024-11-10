@@ -22,19 +22,22 @@ jobs:
         curl -o playlist.m3u8 "http://3da3b664c40e.faststreem.org/playlists/uplist/330b506ddde9b49aae71820847bea623/playlist.m3u8"
         echo "File downloaded successfully."  # Проверка, что файл скачан
 
+    - name: Verify file download
+      run: |
+        ls -al  # Смотрим, что файл действительно был скачан
+        cat playlist.m3u8 | head -n 10  # Выводим первые 10 строк для проверки содержимого
+
     - name: Check git status
       run: |
         git status  # Проверим, есть ли изменения
 
-    - name: Set up GitHub Token
-      uses: actions/setup-git@v2
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}  # Используем секретный токен для аутентификации
-
-    - name: Commit and push changes
+    - name: Configure Git
       run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
+
+    - name: Force commit and push changes
+      run: |
         git add playlist.m3u8  # Добавляем новый файл
-        git commit -m "Обновление плейлиста IPTV"  # Коммитим изменения
+        git commit -m "Обновление плейлиста IPTV" || echo "No changes to commit"  # Коммитим изменения
         git push origin main  # Пушим изменения в основную ветку (измените 'main' на вашу ветку, если нужно)

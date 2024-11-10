@@ -1,0 +1,26 @@
+name: Update IPTV Playlist
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Каждый день в полночь по UTC (вы можете настроить по своему)
+  workflow_dispatch:  # Позволяет вручную запустить процесс обновления
+
+jobs:
+  update-playlist:
+    runs-on: ubuntu-latest  # Используем Ubuntu для выполнения задач
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2  # Клонируем репозиторий
+
+    - name: Download new playlist file
+      run: |
+        curl -o playlist.m3u8 "http://3da3b664c40e.faststreem.org/playlists/uplist/330b506ddde9b49aae71820847bea623/playlist.m3u8"  # Замените на свой URL
+
+    - name: Commit and push changes
+      run: |
+        git config --global user.name "GitHub Actions"  # Устанавливаем имя пользователя
+        git config --global user.email "actions@github.com"  # Устанавливаем email пользователя
+        git add playlist.m3u8  # Добавляем новый файл
+        git commit -m "Обновление плейлиста IPTV"  # Создаём коммит
+        git push origin main  # Отправляем изменения в основную ветку (замените 'main' на вашу ветку)

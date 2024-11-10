@@ -2,33 +2,25 @@ name: Update Playlist
 
 on:
   schedule:
-    # Запускать раз в день, можно настроить на любое время
-    - cron: "0 0 * * *"
-  workflow_dispatch:
-    # Возможность вручную запускать процесс через интерфейс GitHub
-    # Примерный формат cron: "минуты часы день месяц день_недели"
-  
+    - cron: '0 0 * * *'  # Этот рабочий процесс будет запускаться каждый день в полночь
+  workflow_dispatch:  # Это позволяет запускать рабочий процесс вручную
+
 jobs:
   update-playlist:
     runs-on: ubuntu-latest
+
     steps:
-      # Шаг 1: Проверить репозиторий
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
-      # Шаг 2: Установить curl
-      - name: Install curl
-        run: sudo apt-get install curl
+      - name: Download playlist
+        run: |
+          curl -o playlist.m3u8 http://3da3b664c40e.faststreem.org/playlists/uplist/330b506ddde9b49aae71820847bea623/playlist.m3u8
 
-      # Шаг 3: Скачивание нового файла
-      - name: Download new playlist file
-        run: curl -o playlist.m3u8 "http://3da3b664c40e.faststreem.org/playlists/uplist/330b506ddde9b49aae71820847bea623/playlist.m3u8"
-
-      # Шаг 4: Добавить изменения в git
       - name: Commit and push changes
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
           git add playlist.m3u8
-          git commit -m "Updated playlist.m3u8"
+          git commit -m "Update playlist.m3u8"
           git push

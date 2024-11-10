@@ -1,26 +1,40 @@
-name: Update File Every 3 Days
+name: Update IPTV Playlist
 
 on:
   schedule:
-    - cron: '0 0 */3 * *'  # Запускать каждые 3 дня в полночь (по UTC)
-  workflow_dispatch:  # Возможность вручную запустить процесс обновления
+    - cron: '0 0 * * *'  # Запускать каждый день в полночь по UTC
+  workflow_dispatch:  # Разрешить запуск вручную
 
 jobs:
-  update-file:
-    runs-on: ubuntu-latest
-    
+  update-playlist:
+    runs-on: ubuntu-latest  # Используем Ubuntu для выполнения
+
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v2  # Клонируем репозиторий
 
-    - name: Download new file
+    - name: List files in the directory
       run: |
-        curl -o playlist.m3u http://3da3b664c40e.faststreem.org/playlists/uplist/330b506ddde9b49aae71820847bea623/playlist.m3u8  # Замените на ваш URL для скачивания файла
-    
+        ls -al  # Проверим, какие файлы есть в репозитории
+
+    - name: Download new playlist file
+      run: |
+        curl -o playlist.m3u8 "http://3da3b664c40e.faststreem.org/playlists/uplist/330b506ddde9b49aae71820847bea623/playlist.m3u8"
+        echo "File downloaded successfully."  # Проверка, что файл скачан
+
+    - name: Check git status
+      run: |
+        git status  # Проверим, есть ли изменения
+
+    - name: Set up GitHub Token
+      uses: actions/setup-git@v2
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}  # Используем секретный токен для аутентификации
+
     - name: Commit and push changes
       run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
-        git add playlist.m3u
-        git commit -m "Обновление плейлиста"
-        git push origin main  # Замените 'main' на имя вашей ветки, если нужно
+        git add playlist.m3u8  # Добавляем новый файл
+        git commit -m "Обновление плейлиста IPTV"  # Коммитим изменения
+        git push origin main  # Пушим изменения в основную ветку (измените 'main' на вашу ветку, если нужно)

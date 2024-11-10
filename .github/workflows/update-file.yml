@@ -1,0 +1,26 @@
+name: Update File Every 3 Days
+
+on:
+  schedule:
+    - cron: '0 0 */3 * *'  # Запускать каждые 3 дня в полночь (по UTC)
+  workflow_dispatch:  # Возможность вручную запустить процесс обновления
+
+jobs:
+  update-file:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Download new file
+      run: |
+        curl -o playlist.m3u http://3da3b664c40e.faststreem.org/playlists/uplist/330b506ddde9b49aae71820847bea623/playlist.m3u8  # Замените на URL вашего файла
+    
+    - name: Commit and push changes
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        git add playlist.m3u
+        git commit -m "Обновление плейлиста"
+        git push origin main  # Замените 'main' на вашу ветку, если нужно

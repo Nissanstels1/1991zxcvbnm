@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Калькулятор авансирования по контракту</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 10px;
+            max-width: 100%;
+            margin: auto;
+        }
+        .field-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="number"] {
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .result {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .spacing {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .spaced-result {
+            margin: 15px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="field-group">
+    <label>Цена Контракта:</label>
+    <input type="number" id="contractPrice" placeholder="Введите цену контракта" oninput="generateStages()">
+</div>
+
+<div class="spaced-result">
+    Сумма (допустимый аванс): <span id="allowedAdvance">0</span>
+</div>
+
+<div class="field-group">
+    <label>Допустимый % авансирования:</label>
+    <input type="number" id="advancePercent" placeholder="Введите допустимый %" oninput="generateStages()">
+</div>
+
+<div class="field-group">
+    <label>Авансирование по контракту:</label>
+    <input type="number" id="actualAdvance" placeholder="Введите сумму авансирования" oninput="generateStages()">
+</div>
+
+<div class="spacing" id="advanceComparison"></div>
+
+<div class="field-group">
+    <label>Количество этапов:</label>
+    <input type="number" id="stageCount" placeholder="Введите количество этапов" oninput="generateStages()">
+</div>
+
+<div id="stagesContainer"></div>
+
+<script>
+let stagePrices = [];
+
+function generateStages() {
+    const contractPrice = parseFloat(document.getElementById('contractPrice').value) || 0;
+    const advancePercent = parseFloat(document.getElementById('advancePercent').value) || 0;
+    const actualAdvance = parseFloat(document.getElementById('actualAdvance').value) || 0;
+    const stageCount = parseInt(document.getElementById('stageCount').value) || 0;
+
+    const stagesContainer = document.getElementById('stagesContainer');
+    stagesContainer.innerHTML = '';
+
+    const allowedAdvance = (contractPrice * advancePercent / 100).toFixed(2);
+    document.getElementById('allowedAdvance').innerText = allowedAdvance;
+
+    const advanceDifference = (actualAdvance - allowedAdvance).toFixed(2);
+    const percentDifference = (((actualAdvance / allowedAdvance) - 1) * 100).toFixed(2);
+    document.getElementById('advanceComparison').innerText = actualAdvance
+        ? (advanceDifference > 0
+            ? `Превышение на ${advanceDifference} (${percentDifference}%)`
+            : `Не хватает ${Math.abs(advanceDifference)} (${percentDifference}%)`)
+        : '';
+
+    stagePrices = stagePrices.slice(0, stageCount);
+
+    for (let i = 1; i <= stageCount; i++) {
+        const stageDiv = document.createElement('div');
+        stageDiv.className = 'field-group';
+
+        const label = document.createElement('label');
+        label.innerText = `Цена ${i} этапа:`;
+
+        const stageInput = document.createElement('input');
+        stageInput.type = 'number';
+        stageInput.id = `stagePrice${i}`;
+        stageInput.placeholder = `Введите цену ${i} этапа`;
+        stageInput.value = stagePrices[i - 1] || '';
+        stageInput.oninput = () => {
+            stagePrices[i - 1] = parseFloat(stageInput.value) || 0;
+            calculateStageAllowed(i, advancePercent);
+        };
+
+        const allowedStageSpan = document.createElement('div');
+        allowedStageSpan.className = 'result';
+        allowedStageSpan.innerHTML = `Допустимая сумма аванса для ${i} этапа: <span id="allowedStage${i}">0</span>`;
+
+        stageDiv.appendChild(label);
+        stageDiv.appendChild(stageInput);
+        stageDiv.appendChild(allowedStageSpan);
+
+        stagesContainer.appendChild(stageDiv);
+
+        calculateStageAllowed(i, advancePercent);
+    }
+}
+
+function calculateStageAllowed(stageIndex, advancePercent) {
+    const stagePrice = stagePrices[stageIndex - 1] || 0;
+    const allowedStageAdvance = (stagePrice * advancePercent / 100).toFixed(2);
+    document.getElementById(`allowedStage${stageIndex}`).innerText = allowedStageAdvance;
+}
+</script>
+
+</body>
+</html>

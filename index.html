@@ -1,136 +1,70 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Калькулятор авансирования по контракту</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 10px;
-            max-width: 100%;
-            margin: auto;
-        }
-        .field-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input[type="number"] {
-            padding: 8px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .result {
-            margin-top: 15px;
-            font-weight: bold;
-        }
-        .spacing {
-            margin-top: 20px;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-        .spaced-result {
-            margin: 15px 0;
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Психолог Анастасия Викторовна</title>
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="script.js"></script>
+  </head>
+  <body>
+    <header class="header">
+      <div class="logo">Анастасия Викторовна</div>
+      <nav class="nav" id="nav">
+        <a href="#about">Обо мне</a>
+        <a href="#services">Услуги</a>
+        <a href="#contact">Контакты</a>
+      </nav>
+      <button class="burger" id="burger">☰</button>
+    </header>
 
-<div class="field-group">
-    <label>Цена Контракта:</label>
-    <input type="number" id="contractPrice" placeholder="Введите цену контракта" oninput="generateStages()">
-</div>
+    <section class="hero">
+      <h1>Психолог, который слышит</h1>
+      <p>Поддержка и помощь в сложных жизненных ситуациях</p>
+      <a href="#contact" class="btn">Записаться на консультацию</a>
+    </section>
 
-<div class="spaced-result">
-    Сумма (допустимый аванс): <span id="allowedAdvance">0</span>
-</div>
+    <section id="about" class="about container">
+      <h2>Обо мне</h2>
+      <p>
+        Меня зовут Анастасия Викторовна. Я практикующий психолог, который
+        помогает людям справляться со стрессом, тревогой и жизненными
+        трудностями. В своей работе я опираюсь на эмпатию и конфиденциальность.
+      </p>
+    </section>
 
-<div class="field-group">
-    <label>Допустимый % авансирования:</label>
-    <input type="number" id="advancePercent" placeholder="Введите допустимый %" oninput="generateStages()">
-</div>
+    <section id="services" class="services">
+      <h2>Услуги</h2>
+      <div class="service-list container">
+        <div class="service">
+          <h3>Индивидуальные консультации</h3>
+          <p>Личные встречи для анализа и решения внутренних конфликтов.</p>
+        </div>
+        <div class="service">
+          <h3>Семейная терапия</h3>
+          <p>Работа с парами и семьями для улучшения взаимоотношений.</p>
+        </div>
+        <div class="service">
+          <h3>Онлайн-сессии</h3>
+          <p>Поддержка и консультации в удобном формате из любой точки мира.</p>
+        </div>
+      </div>
+    </section>
 
-<div class="field-group">
-    <label>Авансирование по контракту:</label>
-    <input type="number" id="actualAdvance" placeholder="Введите сумму авансирования" oninput="generateStages()">
-</div>
+    <section id="contact" class="contact container">
+      <h2>Контакты</h2>
+      <form class="contact-form">
+        <input type="text" placeholder="Ваше имя" required />
+        <input type="email" placeholder="Email" required />
+        <textarea placeholder="Сообщение" required></textarea>
+        <button type="submit">Отправить</button>
+      </form>
+    </section>
 
-<div class="spacing" id="advanceComparison"></div>
-
-<div class="field-group">
-    <label>Количество этапов:</label>
-    <input type="number" id="stageCount" placeholder="Введите количество этапов" oninput="generateStages()">
-</div>
-
-<div id="stagesContainer"></div>
-
-<script>
-let stagePrices = [];
-
-function generateStages() {
-    const contractPrice = parseFloat(document.getElementById('contractPrice').value) || 0;
-    const advancePercent = parseFloat(document.getElementById('advancePercent').value) || 0;
-    const actualAdvance = parseFloat(document.getElementById('actualAdvance').value) || 0;
-    const stageCount = parseInt(document.getElementById('stageCount').value) || 0;
-
-    const stagesContainer = document.getElementById('stagesContainer');
-    stagesContainer.innerHTML = '';
-
-    const allowedAdvance = (contractPrice * advancePercent / 100).toFixed(2);
-    document.getElementById('allowedAdvance').innerText = allowedAdvance;
-
-    const advanceDifference = (actualAdvance - allowedAdvance).toFixed(2);
-    const percentDifference = (((actualAdvance / allowedAdvance) - 1) * 100).toFixed(2);
-    document.getElementById('advanceComparison').innerText = actualAdvance
-        ? (advanceDifference > 0
-            ? `Превышение на ${advanceDifference} (${percentDifference}%)`
-            : `Не хватает ${Math.abs(advanceDifference)} (${percentDifference}%)`)
-        : '';
-
-    stagePrices = stagePrices.slice(0, stageCount);
-
-    for (let i = 1; i <= stageCount; i++) {
-        const stageDiv = document.createElement('div');
-        stageDiv.className = 'field-group';
-
-        const label = document.createElement('label');
-        label.innerText = `Цена ${i} этапа:`;
-
-        const stageInput = document.createElement('input');
-        stageInput.type = 'number';
-        stageInput.id = `stagePrice${i}`;
-        stageInput.placeholder = `Введите цену ${i} этапа`;
-        stageInput.value = stagePrices[i - 1] || '';
-        stageInput.oninput = () => {
-            stagePrices[i - 1] = parseFloat(stageInput.value) || 0;
-            calculateStageAllowed(i, advancePercent);
-        };
-
-        const allowedStageSpan = document.createElement('div');
-        allowedStageSpan.className = 'result';
-        allowedStageSpan.innerHTML = `Допустимая сумма аванса для ${i} этапа: <span id="allowedStage${i}">0</span>`;
-
-        stageDiv.appendChild(label);
-        stageDiv.appendChild(stageInput);
-        stageDiv.appendChild(allowedStageSpan);
-
-        stagesContainer.appendChild(stageDiv);
-
-        calculateStageAllowed(i, advancePercent);
-    }
-}
-
-function calculateStageAllowed(stageIndex, advancePercent) {
-    const stagePrice = stagePrices[stageIndex - 1] || 0;
-    const allowedStageAdvance = (stagePrice * advancePercent / 100).toFixed(2);
-    document.getElementById(`allowedStage${stageIndex}`).innerText = allowedStageAdvance;
-}
-</script>
-
-</body>
+    <footer class="footer">
+      <div class="container">
+        <p>© 2024 Анастасия Викторовна</p>
+      </div>
+    </footer>
+  </body>
 </html>

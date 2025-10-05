@@ -2,135 +2,636 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Калькулятор авансирования по контракту</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPTV Playlist Viewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 10px;
-            max-width: 100%;
-            margin: auto;
+        :root {
+            color-scheme: dark light;
+            --bg-color: #0f172a;
+            --card-bg: rgba(15, 23, 42, 0.75);
+            --card-border: rgba(148, 163, 184, 0.15);
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --muted: rgba(148, 163, 184, 0.12);
+            --shadow: 0 18px 45px rgba(15, 23, 42, 0.35);
         }
-        .field-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input[type="number"] {
-            padding: 8px;
-            width: 100%;
+
+        * {
             box-sizing: border-box;
         }
-        .result {
-            margin-top: 15px;
-            font-weight: bold;
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(160deg, #020617 0%, #1e293b 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-        .spacing {
-            margin-top: 20px;
-            margin-bottom: 20px;
-            font-weight: bold;
+
+        header {
+            padding: 24px clamp(16px, 5vw, 56px) 12px;
         }
-        .spaced-result {
-            margin: 15px 0;
-            font-weight: bold;
+
+        h1 {
+            margin: 0;
+            font-size: clamp(28px, 4vw, 40px);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        main {
+            flex: 1;
+            display: grid;
+            gap: 24px;
+            padding: 0 clamp(16px, 5vw, 56px) 40px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+
+        .controls {
+            grid-column: 1 / -1;
+            display: grid;
+            gap: 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: clamp(16px, 4vw, 28px);
+            box-shadow: var(--shadow);
+        }
+
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .input-group {
+            display: flex;
+            flex: 1;
+            min-width: 220px;
+            background: rgba(15, 23, 42, 0.55);
+            border-radius: 14px;
+            border: 1px solid var(--muted);
+            overflow: hidden;
+        }
+
+        .input-group input[type="text"],
+        .input-group input[type="search"] {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            padding: 12px 16px;
+            font-size: 15px;
+        }
+
+        .input-group button,
+        .button {
+            background: var(--accent);
+            color: #0f172a;
+            font-weight: 600;
+            border: none;
+            padding: 12px 18px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        .input-group button:hover,
+        .button:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .button.secondary {
+            background: rgba(148, 163, 184, 0.15);
+            color: var(--text-primary);
+        }
+
+        .button.secondary:hover {
+            background: rgba(148, 163, 184, 0.25);
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        select,
+        input[type="file"],
+        input[type="checkbox"] {
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid var(--muted);
+            color: var(--text-primary);
+            padding: 12px 14px;
+            border-radius: 14px;
+            font-size: 15px;
+        }
+
+        input[type="file"] {
+            padding: 10px 14px;
+        }
+
+        label.toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 14px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            background: rgba(148, 163, 184, 0.12);
+            border: 1px solid var(--muted);
+        }
+
+        .player-panel,
+        .channels-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: clamp(16px, 3vw, 28px);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .player {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            border-radius: 18px;
+            overflow: hidden;
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid var(--muted);
+        }
+
+        video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+        }
+
+        .channel-info {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .channel-info img {
+            width: 56px;
+            height: 56px;
+            object-fit: contain;
+            border-radius: 14px;
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid var(--muted);
+        }
+
+        .channel-details h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .channel-details p {
+            margin: 6px 0 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .channels-panel h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .channels-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .channel-card {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 12px;
+            background: rgba(15, 23, 42, 0.55);
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.12);
+            cursor: pointer;
+            transition: transform 0.2s ease, border 0.2s ease, background 0.2s ease;
+        }
+
+        .channel-card:hover,
+        .channel-card.active {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+            background: rgba(56, 189, 248, 0.15);
+        }
+
+        .channel-card img {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            object-fit: contain;
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .channel-card .meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .channel-card .group {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .empty-state,
+        .status-message {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        footer {
+            padding: 24px clamp(16px, 5vw, 56px);
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+
+            .channels-list {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
+<header>
+    <h1>IPTV Playlist Viewer</h1>
+    <p style="margin-top:8px;color:var(--text-secondary);max-width:640px;font-size:15px;">
+        Загрузите M3U плейлист и смотрите потоки прямо в браузере. Выберите встроенный пример, подключите
+        локальный файл или вставьте ссылку на удалённый список. Применяйте фильтры по группам и поиску,
+        скрывайте взрослые каналы и формируйте собственную подборку.
+    </p>
+</header>
 
-<div class="field-group">
-    <label>Цена Контракта:</label>
-    <input type="number" id="contractPrice" placeholder="Введите цену контракта" oninput="generateStages()">
-</div>
+<main>
+    <section class="controls" aria-label="Управление плейлистом">
+        <div class="controls-row">
+            <button class="button" id="loadExample">Загрузить пример</button>
+            <label class="button secondary" for="fileInput">Выбрать файл</label>
+            <input type="file" id="fileInput" accept=".m3u,.m3u8" hidden>
+        </div>
+        <div class="input-group" role="group" aria-label="Загрузить по ссылке">
+            <input type="text" id="urlInput" placeholder="https://example.com/playlist.m3u8" aria-label="Ссылка на плейлист">
+            <button id="loadUrl">Загрузить</button>
+        </div>
+        <div class="filters">
+            <div class="input-group" role="search">
+                <input type="search" id="searchInput" placeholder="Поиск канала..." aria-label="Поиск по названию">
+            </div>
+            <select id="groupSelect" aria-label="Выбор группы">
+                <option value="">Все группы</option>
+            </select>
+            <label class="toggle" title="Скрыть каналы для взрослых">
+                <input type="checkbox" id="hideAdult" checked>
+                Скрывать 18+
+            </label>
+            <div class="status-message" id="statusMessage"></div>
+        </div>
+    </section>
 
-<div class="spaced-result">
-    Сумма (допустимый аванс): <span id="allowedAdvance">0</span>
-</div>
+    <section class="player-panel" aria-label="Плеер">
+        <div class="player">
+            <video id="videoPlayer" controls playsinline poster="" preload="metadata"></video>
+        </div>
+        <div class="channel-info" id="channelInfo" hidden>
+            <img src="" alt="Логотип канала" id="channelLogo">
+            <div class="channel-details">
+                <h2 id="channelTitle"></h2>
+                <p id="channelMeta"></p>
+                <p id="channelSource" style="font-size:12px;word-break:break-all;color:var(--text-secondary);"></p>
+            </div>
+        </div>
+        <div class="empty-state" id="playerHint">
+            Выберите канал из списка, чтобы начать воспроизведение. Если поток не запускается, попробуйте другой или
+            проверьте наличие ограничений по CORS/DRM.
+        </div>
+    </section>
 
-<div class="field-group">
-    <label>Допустимый % авансирования:</label>
-    <input type="number" id="advancePercent" placeholder="Введите допустимый %" oninput="generateStages()">
-</div>
+    <section class="channels-panel" aria-label="Список каналов">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+            <h2>Каналы</h2>
+            <div class="status-message" id="channelsCount"></div>
+        </div>
+        <div class="channels-list" id="channelsList"></div>
+        <div class="empty-state" id="emptyState" hidden>По вашему запросу ничего не найдено.</div>
+    </section>
+</main>
 
-<div class="field-group">
-    <label>Авансирование по контракту:</label>
-    <input type="number" id="actualAdvance" placeholder="Введите сумму авансирования" oninput="generateStages()">
-</div>
+<footer>
+    <small>Потоки проигрываются напрямую из плейлиста. Некоторые трансляции могут не открываться из-за региональных
+        ограничений, DRM или отсутствия поддержки HLS в браузере.</small>
+</footer>
 
-<div class="spacing" id="advanceComparison"></div>
-
-<div class="field-group">
-    <label>Количество этапов:</label>
-    <input type="number" id="stageCount" placeholder="Введите количество этапов" oninput="generateStages()">
-</div>
-
-<div id="stagesContainer"></div>
-
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.13/dist/hls.min.js" integrity="sha384-gSBswPDQcduHqCj4NnSztz3cMC4MVeL9sk1AnfFEOtXok23AuBwslrz1Tn25QSzv" crossorigin="anonymous"></script>
 <script>
-let stagePrices = [];
+    const state = {
+        channels: [],
+        filtered: [],
+        selectedUrl: null,
+        hls: null,
+        lastSource: ''
+    };
 
-function generateStages() {
-    const contractPrice = parseFloat(document.getElementById('contractPrice').value) || 0;
-    const advancePercent = parseFloat(document.getElementById('advancePercent').value) || 0;
-    const actualAdvance = parseFloat(document.getElementById('actualAdvance').value) || 0;
-    const stageCount = parseInt(document.getElementById('stageCount').value) || 0;
+    const channelListEl = document.getElementById('channelsList');
+    const emptyStateEl = document.getElementById('emptyState');
+    const groupSelectEl = document.getElementById('groupSelect');
+    const searchInputEl = document.getElementById('searchInput');
+    const hideAdultEl = document.getElementById('hideAdult');
+    const statusMessageEl = document.getElementById('statusMessage');
+    const channelsCountEl = document.getElementById('channelsCount');
+    const channelInfoEl = document.getElementById('channelInfo');
+    const channelTitleEl = document.getElementById('channelTitle');
+    const channelMetaEl = document.getElementById('channelMeta');
+    const channelLogoEl = document.getElementById('channelLogo');
+    const channelSourceEl = document.getElementById('channelSource');
+    const playerHintEl = document.getElementById('playerHint');
+    const videoEl = document.getElementById('videoPlayer');
 
-    const stagesContainer = document.getElementById('stagesContainer');
-    stagesContainer.innerHTML = '';
+    const ADULT_KEYWORDS = ['18+', 'xxx', 'adult', 'взросл', 'porn'];
 
-    const allowedAdvance = (contractPrice * advancePercent / 100).toFixed(2);
-    document.getElementById('allowedAdvance').innerText = allowedAdvance;
-
-    const advanceDifference = (actualAdvance - allowedAdvance).toFixed(2);
-    const percentDifference = (((actualAdvance / allowedAdvance) - 1) * 100).toFixed(2);
-    document.getElementById('advanceComparison').innerText = actualAdvance
-        ? (advanceDifference > 0
-            ? `Превышение на ${advanceDifference} (${percentDifference}%)`
-            : `Не хватает ${Math.abs(advanceDifference)} (${percentDifference}%)`)
-        : '';
-
-    stagePrices = stagePrices.slice(0, stageCount);
-
-    for (let i = 1; i <= stageCount; i++) {
-        const stageDiv = document.createElement('div');
-        stageDiv.className = 'field-group';
-
-        const label = document.createElement('label');
-        label.innerText = `Цена ${i} этапа:`;
-
-        const stageInput = document.createElement('input');
-        stageInput.type = 'number';
-        stageInput.id = `stagePrice${i}`;
-        stageInput.placeholder = `Введите цену ${i} этапа`;
-        stageInput.value = stagePrices[i - 1] || '';
-        stageInput.oninput = () => {
-            stagePrices[i - 1] = parseFloat(stageInput.value) || 0;
-            calculateStageAllowed(i, advancePercent);
-        };
-
-        const allowedStageSpan = document.createElement('div');
-        allowedStageSpan.className = 'result';
-        allowedStageSpan.innerHTML = `Допустимая сумма аванса для ${i} этапа: <span id="allowedStage${i}">0</span>`;
-
-        stageDiv.appendChild(label);
-        stageDiv.appendChild(stageInput);
-        stageDiv.appendChild(allowedStageSpan);
-
-        stagesContainer.appendChild(stageDiv);
-
-        calculateStageAllowed(i, advancePercent);
+    function parseExtinf(line) {
+        const extinfContent = line.replace(/^#EXTINF:(?:-?\d+)\s*/, '');
+        const commaIndex = extinfContent.lastIndexOf(',');
+        const attrPart = commaIndex !== -1 ? extinfContent.slice(0, commaIndex).trim() : '';
+        const namePart = commaIndex !== -1 ? extinfContent.slice(commaIndex + 1).trim() : extinfContent.trim();
+        const attributes = {};
+        const regex = /(\w[\w-]*)="([^"]*)"/g;
+        let match;
+        while ((match = regex.exec(attrPart)) !== null) {
+            attributes[match[1]] = match[2];
+        }
+        return { name: namePart, attributes };
     }
-}
 
-function calculateStageAllowed(stageIndex, advancePercent) {
-    const stagePrice = stagePrices[stageIndex - 1] || 0;
-    const allowedStageAdvance = (stagePrice * advancePercent / 100).toFixed(2);
-    document.getElementById(`allowedStage${stageIndex}`).innerText = allowedStageAdvance;
-}
+    function parsePlaylist(text) {
+        const lines = text.split(/\r?\n/);
+        const channels = [];
+        let pending = null;
+        for (const rawLine of lines) {
+            const line = rawLine.trim();
+            if (!line) continue;
+            if (line.startsWith('#EXTINF')) {
+                const { name, attributes } = parseExtinf(line);
+                pending = {
+                    name,
+                    attributes,
+                    tvgId: attributes['tvg-id'] || attributes['tvgId'] || '',
+                    logo: attributes['tvg-logo'] || attributes['logo'] || '',
+                    group: '',
+                    url: ''
+                };
+            } else if (line.startsWith('#EXTGRP')) {
+                if (pending) {
+                    pending.group = line.replace('#EXTGRP:', '').trim();
+                }
+            } else if (line.startsWith('#')) {
+                continue;
+            } else if (pending) {
+                pending.url = line;
+                channels.push({ ...pending });
+                pending = null;
+            }
+        }
+        return channels;
+    }
+
+    function isAdultChannel(channel) {
+        const target = `${channel.name} ${channel.group} ${channel.attributes?.description || ''}`.toLowerCase();
+        return ADULT_KEYWORDS.some(keyword => target.includes(keyword));
+    }
+
+    function updateGroupOptions() {
+        const groups = new Set(state.channels
+            .filter(ch => ch.group)
+            .map(ch => ch.group.trim())
+        );
+        const sorted = Array.from(groups).sort((a, b) => a.localeCompare(b, 'ru'));
+        groupSelectEl.innerHTML = '<option value="">Все группы</option>' +
+            sorted.map(group => `<option value="${group}">${group}</option>`).join('');
+    }
+
+    function renderChannels() {
+        const query = searchInputEl.value.trim().toLowerCase();
+        const group = groupSelectEl.value;
+        const hideAdult = hideAdultEl.checked;
+        state.filtered = state.channels.filter(channel => {
+            if (group && channel.group !== group) return false;
+            if (hideAdult && isAdultChannel(channel)) return false;
+            if (!query) return true;
+            return channel.name.toLowerCase().includes(query) ||
+                channel.group.toLowerCase().includes(query) ||
+                channel.tvgId.toLowerCase().includes(query);
+        });
+
+        channelsCountEl.textContent = state.filtered.length
+            ? `Показано ${state.filtered.length} из ${state.channels.length}`
+            : `Всего каналов: ${state.channels.length}`;
+
+        channelListEl.innerHTML = '';
+        if (state.filtered.length === 0) {
+            emptyStateEl.hidden = false;
+            return;
+        }
+        emptyStateEl.hidden = true;
+
+        const fragment = document.createDocumentFragment();
+        state.filtered.forEach(channel => {
+            const card = document.createElement('button');
+            card.type = 'button';
+            card.className = 'channel-card';
+            if (channel.url === state.selectedUrl) {
+                card.classList.add('active');
+            }
+
+            const logo = document.createElement('img');
+            logo.src = channel.logo || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"%3E%3Crect width="80" height="80" rx="18" fill="%231f2937"/%3E%3Cpath d="M24 28h32v4H24zm0 12h32v4H24zm0 12h20v4H24z" fill="%2394a3b8"/%3E%3C/svg%3E';
+            logo.alt = `Логотип ${channel.name}`;
+
+            const meta = document.createElement('div');
+            meta.className = 'meta';
+
+            const title = document.createElement('div');
+            title.textContent = channel.name;
+            title.style.fontWeight = '600';
+            title.style.fontSize = '14px';
+
+            const groupEl = document.createElement('div');
+            groupEl.className = 'group';
+            groupEl.textContent = channel.group || 'Без группы';
+
+            meta.appendChild(title);
+            meta.appendChild(groupEl);
+
+            card.appendChild(logo);
+            card.appendChild(meta);
+            card.addEventListener('click', () => selectChannel(channel));
+            fragment.appendChild(card);
+        });
+
+        channelListEl.appendChild(fragment);
+    }
+
+    function resetPlayer() {
+        if (state.hls) {
+            state.hls.destroy();
+            state.hls = null;
+        }
+        videoEl.removeAttribute('src');
+        videoEl.load();
+        videoEl.poster = '';
+        state.selectedUrl = null;
+        channelInfoEl.hidden = true;
+        playerHintEl.hidden = false;
+        channelSourceEl.textContent = '';
+    }
+
+    async function selectChannel(channel) {
+        if (!channel.url) return;
+
+        state.selectedUrl = channel.url;
+        renderChannels();
+        channelInfoEl.hidden = false;
+        playerHintEl.hidden = true;
+        channelTitleEl.textContent = channel.name;
+        channelMetaEl.textContent = [channel.group, channel.tvgId].filter(Boolean).join(' • ');
+        channelLogoEl.src = channel.logo || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"%3E%3Crect width="80" height="80" rx="18" fill="%231f2937"/%3E%3Cpath d="M24 28h32v4H24zm0 12h32v4H24zm0 12h20v4H24z" fill="%2394a3b8"/%3E%3C/svg%3E';
+        channelLogoEl.alt = `Логотип ${channel.name}`;
+        channelSourceEl.textContent = channel.url;
+
+        if (state.hls) {
+            state.hls.destroy();
+            state.hls = null;
+        }
+
+        try {
+            if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
+                videoEl.src = channel.url;
+                await videoEl.play().catch(() => {});
+            } else if (window.Hls && Hls.isSupported()) {
+                state.hls = new Hls({
+                    maxMaxBufferLength: 120,
+                    backBufferLength: 90,
+                    enableWorker: true
+                });
+                state.hls.loadSource(channel.url);
+                state.hls.attachMedia(videoEl);
+                state.hls.on(Hls.Events.ERROR, (_, data) => {
+                    if (data?.fatal) {
+                        statusMessageEl.textContent = 'Ошибка воспроизведения: ' + (data.details || 'неизвестно');
+                    }
+                });
+            } else {
+                statusMessageEl.textContent = 'Ваш браузер не поддерживает HLS-потоки.';
+            }
+        } catch (error) {
+            console.error(error);
+            statusMessageEl.textContent = 'Не удалось загрузить поток. Проверьте CORS и доступность URL.';
+        }
+    }
+
+    function loadPlaylist(text, sourceLabel = 'плейлист') {
+        try {
+            const channels = parsePlaylist(text);
+            if (!channels.length) {
+                throw new Error('Список не содержит каналов.');
+            }
+            state.channels = channels;
+            updateGroupOptions();
+            renderChannels();
+            statusMessageEl.textContent = `Загружено каналов: ${channels.length} (${sourceLabel}).`;
+            resetPlayer();
+        } catch (error) {
+            console.error(error);
+            statusMessageEl.textContent = error.message;
+            state.channels = [];
+            renderChannels();
+        }
+    }
+
+    async function loadFromUrl(url) {
+        statusMessageEl.textContent = 'Загрузка плейлиста...';
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Ошибка загрузки: ${response.status} ${response.statusText}`);
+            }
+            const text = await response.text();
+            loadPlaylist(text, 'внешний источник');
+        } catch (error) {
+            console.error(error);
+            statusMessageEl.textContent = 'Не удалось загрузить плейлист. Возможно, CORS запрещает доступ.';
+        }
+    }
+
+    document.getElementById('loadExample').addEventListener('click', async () => {
+        await loadFromUrl('playlist.m3u8');
+    });
+
+    document.getElementById('loadUrl').addEventListener('click', async () => {
+        const url = document.getElementById('urlInput').value.trim();
+        if (!url) {
+            statusMessageEl.textContent = 'Введите ссылку на плейлист.';
+            return;
+        }
+        await loadFromUrl(url);
+    });
+
+    document.getElementById('fileInput').addEventListener('change', async (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        statusMessageEl.textContent = 'Чтение локального файла...';
+        try {
+            const text = await file.text();
+            loadPlaylist(text, file.name);
+        } catch (error) {
+            console.error(error);
+            statusMessageEl.textContent = 'Не удалось прочитать файл.';
+        }
+    });
+
+    searchInputEl.addEventListener('input', renderChannels);
+    groupSelectEl.addEventListener('change', renderChannels);
+    hideAdultEl.addEventListener('change', renderChannels);
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            videoEl.pause();
+        }
+    });
+
+    loadFromUrl('playlist.m3u8');
 </script>
-
 </body>
 </html>
